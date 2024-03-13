@@ -12,6 +12,6 @@ pip install -e .
 ```
 cd examples
 
-# text generation
+#text generation
 python text_generator.py
 ```
