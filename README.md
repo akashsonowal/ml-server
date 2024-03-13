@@ -15,3 +15,9 @@ cd examples
 # text generation
 python text_generator.py
 ```
+
+## Benchmarks
+```bash
+cd benchmarks
+locust
+```
