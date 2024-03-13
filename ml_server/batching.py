@@ -7,12 +7,12 @@ from typing import Any, Callable, List
 logger = logging.getLogger(__name__)
 
 class BatchQueue:
-    def __init__(self, max_batch_size: int, batch_wait_timeout_s: int, handle_batch_func: Callable):
+    def __init__(self, loop, max_batch_size: int, batch_wait_timeout_s: int, handle_batch_func: Callable):
         self.queue = asyncio.Queue()
         self.max_batch_size = max_batch_size
         self.batch_wait_timeout_s = batch_wait_timeout_s
 
-        self._loop = asyncio.get_event_loop()
+        self._loop = loop
         self._requests_available_event = asyncio.Event()
 
         self._handle_batch_task = None
