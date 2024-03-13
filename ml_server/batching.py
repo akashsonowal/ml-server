@@ -6,8 +6,15 @@ from typing import Any, Callable, List
 
 logger = logging.getLogger(__name__)
 
+
 class BatchQueue:
-    def __init__(self, loop, max_batch_size: int, batch_wait_timeout_s: int, handle_batch_func: Callable):
+    def __init__(
+        self,
+        loop,
+        max_batch_size: int,
+        batch_wait_timeout_s: int,
+        handle_batch_func: Callable,
+    ):
         self.queue = asyncio.Queue()
         self.max_batch_size = max_batch_size
         self.batch_wait_timeout_s = batch_wait_timeout_s
@@ -21,11 +28,11 @@ class BatchQueue:
             self._handle_batch_task = self._loop.create_task(
                 self._process_batches(handle_batch_func)
             )
-        
+
     def put(self, request):
         self.queue.put_nowait(request)
         self._requests_available_event.set()
-    
+
     async def consume(self):
         batch = []
         batch.append(await self.queue.get())
@@ -44,7 +51,7 @@ class BatchQueue:
                 )
             except asyncio.TimeoutError:
                 pass
-            
+
             while len(batch) < max_batch_size and not self.queue.empty():
                 batch.append(self.queue.get_nowait())
 
@@ -57,12 +64,12 @@ class BatchQueue:
             ):
                 break
         return batch
-    
+
     async def process_request(self, item):
         future = self._loop.create_future()
         self.put((item, future))
         return await future
-    
+
     async def _process_batches(self, func):
         while not self._loop.is_closed():
             await self._process_batch(func)
@@ -79,7 +86,7 @@ class BatchQueue:
             for result, future in zip(results, futures):
                 if not future.done():
                     future.set_result(result)
-        
+
         except Exception as e:
             for future in futures:
                 if not future.done():
